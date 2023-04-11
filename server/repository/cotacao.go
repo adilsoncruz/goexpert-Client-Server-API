@@ -11,19 +11,23 @@ import (
 func InsertCotacao(c models.Cotacao) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
-	log.Println("inserir", c, c.Code)
 	connection, err := db.Connect()
 	if err != nil {
+		cancel()
 		return err
 	}
 	stmt, err := connection.Prepare("insert into cotacao(Code, CodeIn, NamePrice, Hight, Low, PctChange, BID, Ask, TimestampPrice, CreateDate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
+		log.Println("error:", err)
+		cancel()
 		return err
 	}
 	defer stmt.Close()
 	_, err = stmt.ExecContext(ctx, c.Code, c.CodeIn, c.Name, c.Hight, c.Low, c.PctChange, c.BID, c.Ask, c.TimestampPrice, c.CreateDate)
 
 	if err != nil {
+		log.Println("error:", err)
+		cancel()
 		return err
 	}
 

@@ -17,25 +17,27 @@ func BuscarCotacaoHandler(w http.ResponseWriter, r *http.Request) {
 	data, error := services.BuscaCotacao()
 	log.Println("Retornando Cotação....")
 	if error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(error.Error()))
+		http.Error(w, "Requisicao: erro ao buscar cotação", http.StatusInternalServerError)
 		return
 	}
 
-	repository.InsertCotacao(data.USDBRL)
+	err := repository.InsertCotacao(data.USDBRL)
+
+	if err != nil {
+		http.Error(w, "Requisicao: erro ao Salvar no banco", http.StatusInternalServerError)
+		return
+	}
 
 	select {
 	case <-time.After(5 * time.Second):
 		log.Println("Request processada com sucesso")
+		w.Header().Set("content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(data.USDBRL)
 	case <-ctx.Done():
 		log.Println("Requisicao cancelada pelo cliente")
 		http.Error(w, "Requisicao cancelada pelo cliente", http.StatusRequestTimeout)
 	}
-
-	w.Header().Set("content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(data.USDBRL)
-
 }
 
 func ListarCotacaoHandler(w http.ResponseWriter, r *http.Request) {
