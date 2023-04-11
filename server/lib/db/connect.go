@@ -20,11 +20,24 @@ func Connect() (*sql.DB, error) {
 		defer lock.Unlock()
 		if singleInstance == nil {
 			log.Println("Creating Connection instance now.")
-			db, err := sql.Open("sqlite3", "./cotacao.db")
+			db, err := sql.Open("sqlite3", "db")
 
 			if err != nil {
 				panic(err)
 			}
+			db.Exec(`CREATE TABLE cotacao ( 
+				uid INTEGER PRIMARY KEY AUTOINCREMENT,   
+				 Code       varchar(255) NULL,
+				CodeIn     varchar(255) NULL,
+				NamePrice       varchar(255) NULL,
+				Hight      varchar(255) NULL,
+				Low      varchar(255) NULL,
+				PctChange  varchar(255) NULL,
+				BID        varchar(255) NULL,
+				Ask        varchar(255) NULL,
+				TimestampPrice  varchar(255) NULL,
+				CreateDate varchar(255) NULL
+				);`)
 			singleInstance = db
 			log.Println("Connection instance created.")
 		} else {

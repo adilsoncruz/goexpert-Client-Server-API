@@ -12,7 +12,7 @@ type ErrorMessage struct {
 
 func main() {
 	http.HandleFunc("/cotacao", controllers.BuscarCotacaoHandler)
+	http.HandleFunc("/history", controllers.ListarCotacaoHandler)
 	http.ListenAndServe(":8080", nil)
 
-	
 }

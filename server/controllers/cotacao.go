@@ -37,3 +37,25 @@ func BuscarCotacaoHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data.USDBRL)
 
 }
+
+func ListarCotacaoHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	data, err := repository.ListCotacao()
+
+	if err != nil {
+		panic(err)
+	}
+
+	select {
+	case <-time.After(5 * time.Second):
+		log.Println("Request processada com sucesso")
+	case <-ctx.Done():
+		log.Println("Requisicao cancelada pelo cliente")
+		http.Error(w, "Requisicao cancelada pelo cliente", http.StatusRequestTimeout)
+	}
+
+	w.Header().Set("content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
+
+}
